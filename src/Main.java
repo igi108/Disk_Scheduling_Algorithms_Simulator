@@ -33,4 +33,7 @@ public class Main {
     //array of requests. There are all the requests, even ones not already "created"
     static Request[] array;
 
+    private static int randomInt(int min, int max, Random random){
+        return random.nextInt(max - min) + min;
+    }
 }
