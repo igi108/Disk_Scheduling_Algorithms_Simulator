@@ -23,7 +23,7 @@ public class Request {
         }
         if(deadline != -1 && currentTime > deadline){
             finishTime = -1;
-            finished = false;
+            finished = true;
         }
 
     }
