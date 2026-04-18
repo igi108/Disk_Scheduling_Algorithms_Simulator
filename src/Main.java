@@ -134,7 +134,7 @@ public class Main {
                 }
             }
 
-            //update all requests to delete realtime out of deadline requests
+            //update all requests to delete realtime out of deadline requests, and finished request
             for (Request request: list){
                 request.update(time, headPosition);
             }
