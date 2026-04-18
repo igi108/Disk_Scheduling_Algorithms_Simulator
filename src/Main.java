@@ -1,6 +1,9 @@
 import java.util.Random;
 
 //percentage 0.0 - 1.0
+
+//one disk-head move is one time unit
+
 public class Main {
 
     static final int seed = 123456789;
