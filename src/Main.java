@@ -111,18 +111,35 @@ public class Main {
 
             //move to first request arrived (FIFO)
             if(!list.isEmpty()){
+                Request request = list.getFirst();
                 int previousPosition = headPosition;
-                headPosition = list.getFirst().position;
-                list.getFirst().update(time, headPosition);
+                //when no deadline (move until request finished)
+                if(request.deadline == -1){
+                    headPosition = request.position;
+                    time += Math.abs(previousPosition - headPosition);
+
+                }else {//when there is deadline, move as long as request exists, or until it is finished
+                    int timeUntil = Math.abs(request.deadline - time);//time until request deletes itself
+                    int deltaPosition = request.position - previousPosition;
+
+                    int min = Math.min(timeUntil, Math.abs(deltaPosition));
+                    time += min;
+                    headPosition += min;
+                }
                 totalMoves += Math.abs(previousPosition - headPosition);
-                list.removeFirst();
-                time += Math.abs(previousPosition - headPosition);
+
             }else {
                 //when there is no request, time passes. jump to next request
                 if (lastAddedId < totalRequests) {
                     time = array[lastAddedId].arrivalTime;
                 }
             }
+
+            //update all requests to delete realtime out of deadline requests
+            for (Request request: list){
+                request.update(time, headPosition);
+            }
+            list.removeIf(request -> request.finished);
 
             //check if simulation is done
             if(lastAddedId == totalRequests && list.isEmpty()){
