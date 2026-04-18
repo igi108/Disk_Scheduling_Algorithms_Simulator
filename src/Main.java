@@ -81,7 +81,7 @@ public class Main {
                 request.position = position;
             }
         }
-
+        Arrays.sort(array, Comparator.comparingInt(a -> a.arrivalTime));
     }
 
     static void main(String[] args) {
@@ -97,7 +97,6 @@ public class Main {
         int time = 0;
         int headPosition = diskSize / 2;
 
-        Arrays.sort(array, Comparator.comparingInt(a -> a.arrivalTime));
         int lastAddedId = 0;
         List<Request> list = new ArrayList<>(totalRequests);
 
