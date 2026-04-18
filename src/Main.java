@@ -27,8 +27,64 @@ public class Main {
     static final int maxDeadline = 500;
     static final int minDeadline = 100;
 
+    private static void generateRequests(){
+        Random random = new Random(seed);
+        int requestsGenerated = 0;
+        array = new Request[totalRequests];
+
+        int notClutteredRequests = (int)Math.round(totalRequests * (1.0 - clutterPercentage));
+
+        //generate basic requests
+        for (int i = 0; i < notClutteredRequests; i++){
+            Request request= new Request();
+            request.arrivalTime = randomInt(0, totalArrivalTime, random);
+            request.id = requestsGenerated;
+            request.position = randomInt(0, diskSize, random);
+
+            array[requestsGenerated] = request;
+            requestsGenerated ++;
+        }
+
+        int requestsWithDeadlines = (int)Math.round(deadlinesPercentage * totalRequests);
+        int i = 0;
+        //set deadlines only for basic requests
+        while (i < requestsWithDeadlines){
+            int randRequest = randomInt(0, requestsGenerated, random);
+            Request request = array[randRequest];
+            if(request.deadline == -1){
+                request.deadline = request.arrivalTime + randomInt(minDeadline, maxDeadline, random);
+                i++;
+            }
+        }
+
+        int clutteredRequests = (int)Math.round(totalRequests * clutterPercentage);
+        int requestsPerClutter = clutteredRequests / numberOfClutters;
+        //generate clutters - equal distribution in time
+        for (int clutter = 0; clutter < numberOfClutters; clutter++){
+
+            int clutterArrivalTime = randomInt(0, totalArrivalTime, random);
+            int clutterPosition = randomInt(0, diskSize, random);//middle of clutter on disk
+
+            //generate requests in clutter
+            for (int j = 0; j < requestsPerClutter; j++){
+                Request request = new Request();
+                request.arrivalTime = clutterArrivalTime;
+                array[requestsGenerated] = request;
+                requestsGenerated ++;
+
+                int position = clutterPosition + randomInt(- maxClutterDistance, maxClutterDistance, random);
+                if(position > diskSize) position = diskSize;
+                if(position < 0) position = 0;
+                request.position = position;
+            }
+        }
+
+    }
+
     static void main(String[] args) {
 
+        generateRequests();
+        
     }
     //array of requests. There are all the requests, even ones not already "created"
     static Request[] array;
