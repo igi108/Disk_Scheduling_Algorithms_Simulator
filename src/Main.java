@@ -1,4 +1,4 @@
-import java.util.Random;
+import java.util.*;
 
 //percentage 0.0 - 1.0
 
@@ -87,7 +87,49 @@ public class Main {
     static void main(String[] args) {
 
         generateRequests();
-        
+        FCFS();
+
+    }
+
+    private static void FCFS(){
+
+        int totalMoves = 0;
+        int time = 0;
+        int headPosition = diskSize / 2;
+
+        Arrays.sort(array, Comparator.comparingInt(a -> a.arrivalTime));
+        int lastAddedId = 0;
+        List<Request> list = new ArrayList<>(totalRequests);
+
+        while (true){
+
+            //add created requests
+            while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
+                list.add(array[lastAddedId]);
+                lastAddedId ++;
+            }
+
+            //move to first request arrived (FIFO)
+            if(!list.isEmpty()){
+                int previousPosition = headPosition;
+                headPosition = list.getFirst().position;
+                list.getFirst().update(time, headPosition);
+                totalMoves += Math.abs(previousPosition - headPosition);
+                list.removeFirst();
+                time += Math.abs(previousPosition - headPosition);
+            }else {
+                //when there is no request, time passes. jump to next request
+                if (lastAddedId < totalRequests) {
+                    time = array[lastAddedId].arrivalTime;
+                }
+            }
+
+            //check if simulation is done
+            if(lastAddedId == totalRequests && list.isEmpty()){
+                break;
+            }
+        }
+        //todo get results
     }
     //array of requests. There are all the requests, even ones not already "created"
     static Request[] array;
