@@ -61,7 +61,7 @@ public class Main {
         }
 
         int clutteredRequests = (int)Math.round(totalRequests * clutterPercentage);
-        int requestsPerClutter = clutteredRequests / numberOfClutters;
+        int requestsPerClutter = Math.max(1, clutteredRequests / numberOfClutters);
         //generate clutters - equal distribution in time
         for (int clutter = 0; clutter < numberOfClutters; clutter++){
 
