@@ -86,6 +86,7 @@ public class Main {
 
     static void main(String[] args) {
 
+        printMainReport();
         FCFS();
         SSTF();
         SCAN();
@@ -138,7 +139,6 @@ public class Main {
                         time += Math.abs(deltaPosition);
                         headPosition += deltaPosition;
                     }
-
                 }
                 totalMoves += Math.abs(previousPosition - headPosition);
 
@@ -160,7 +160,7 @@ public class Main {
                 break;
             }
         }
-        //todo get results
+        printAlgorithmReport("FCFS", time, totalMoves);
     }
 
     private static void SSTF(){
@@ -235,7 +235,7 @@ public class Main {
             }
             deadlineList.removeIf(request -> request.finished);//delete out od deadline requests
             list.removeIf(request -> request.finished);//delete out od deadline requests
-            if (list.contains(closestRequest)) {
+            if (closestRequest != null && list.contains(closestRequest)) {
                 newClosestHasToBeFound = false;
             }else {
                 newClosestHasToBeFound = true;
@@ -247,7 +247,7 @@ public class Main {
             }
 
         }
-        //todo get results
+        printAlgorithmReport("SSTF", time, totalMoves);
 
     }
 
@@ -293,7 +293,7 @@ public class Main {
             }
         }
 
-        //todo get results
+        printAlgorithmReport("SCAN", time, totalMoves);
     }
 
     private static void G_SCAN(){
@@ -336,7 +336,7 @@ public class Main {
             }
         }
 
-        //todo get results
+        printAlgorithmReport("C-SCAN", time, totalMoves);
     }
 
     //when there are deadline requests: only earliest deadline is done (tries to be done), when there are none, C_SCAN
@@ -418,7 +418,7 @@ public class Main {
             }
         }
 
-        //todo get results
+        printAlgorithmReport("EDF", time, totalMoves);
     }
 
     //when there are deadline requests: earliest deadline is done (that can still be done)
@@ -515,7 +515,7 @@ public class Main {
             }
         }
 
-        //todo get results
+        printAlgorithmReport("FD-SCAN", time, totalMoves);
     }
 
     //array of requests. There are all the requests, even ones not already "created"
@@ -523,5 +523,119 @@ public class Main {
 
     private static int randomInt(int min, int max, Random random){
         return random.nextInt(max - min) + min;
+    }
+
+    private static void printMainReport() {
+        System.out.println("=====================================================");
+        System.out.println("            DISK SIMULATION CONFIGURATION");
+        System.out.println("=====================================================");
+        System.out.printf("   - %-35s %d\n", "Disk size (blocks):", diskSize);
+        System.out.printf("   - %-35s %d\n", "Total number of requests:", totalRequests);
+        System.out.printf("   - %-35s %d\n", "Max request creation time:", totalArrivalTime);
+        System.out.println("-----------------------------------------------------");
+        System.out.printf("   - %-35s %.1f%%\n", "Clustered requests:", clutterPercentage * 100);
+        System.out.printf("   - %-35s %d\n", "Number of clusters:", numberOfClutters);
+        System.out.printf("   - %-35s %d\n", "Max cluster radius:", maxClutterDistance);
+        System.out.println("-----------------------------------------------------");
+        System.out.printf("   - %-35s %.1f%%\n", "Real-Time requests:", deadlinesPercentage * 100);
+        System.out.printf("   - %-35s %d / %d\n", "Deadline time range (Min/Max):", minDeadline, maxDeadline);
+        System.out.println("=====================================================\n");
+    }
+
+    private static void printAlgorithmReport(String algorithmName, int simulationTime, int totalMoves) {
+        long totalTimeWaiting = 0;
+        int minTimeWaiting = Integer.MAX_VALUE;
+        int maxTimeWaiting = 0;
+
+        int realTimeRequestsNumber = 0;
+        int missedDeadlines = 0;
+        int finishedRequests = 0;
+
+        for (Request request : array) {
+            boolean isRealTime = (request.deadline != -1);
+            if (isRealTime) realTimeRequestsNumber++;
+
+            //if finishTime is -1, request was timed out
+            if (request.finishTime == -1) {
+                missedDeadlines++;
+                continue;
+            }
+
+            int requestWaitTime = request.finishTime - request.arrivalTime;
+            totalTimeWaiting += requestWaitTime;
+            finishedRequests ++;
+
+            if (requestWaitTime < minTimeWaiting) minTimeWaiting = requestWaitTime;
+            if (requestWaitTime > maxTimeWaiting) maxTimeWaiting = requestWaitTime;
+        }
+
+        double averageWaitTime;
+        double successRate;
+        if(finishedRequests != 0){
+            averageWaitTime = (double) totalTimeWaiting / (double) finishedRequests;
+        }else {
+            averageWaitTime = 0;
+        }
+        if(realTimeRequestsNumber != 0){
+            successRate = 100.0 * ((double) (realTimeRequestsNumber - missedDeadlines) / (double) realTimeRequestsNumber);
+        }else {
+            successRate = 100.0;
+        }
+
+        System.out.println(">>> ALGORITHM REPORT: " + algorithmName);
+        System.out.printf("   - %-35s %d\n", "Total simulation time:", simulationTime);
+        System.out.printf("   - %-35s %d\n", "Total head movements:", totalMoves);
+        System.out.println("   [WAITING STATISTICS]");
+        System.out.printf("   - %-35s %.2f\n", "Average waiting time:", averageWaitTime);
+        System.out.printf("   - %-35s %d\n", "Minimum waiting time:", minTimeWaiting);
+        System.out.printf("   - %-35s %d\n", "Maximum waiting time:", maxTimeWaiting);
+        System.out.println("   [REAL-TIME PERFORMANCE]");
+        System.out.printf("   - %-35s %.2f%%\n", "Deadline success rate:", successRate);
+        System.out.printf("   - %-35s %d out of %d\n", "Missed deadlines:", missedDeadlines, realTimeRequestsNumber);
+
+        printTimeDistribution(averageWaitTime);
+        System.out.println("\n");
+    }
+
+    private static void printTimeDistribution(double averageWaitingTime) {
+        int[] count = new int[5];//amount of requests per ratio
+
+        int finishedRequests = 0;
+        //prepare distribution
+        for (Request request : array) {
+            if (request.finishTime == -1) continue;//do not count unfinished deadlines
+
+            finishedRequests ++;
+            int waitTime = request.finishTime - request.arrivalTime;
+            double ratio = (double) waitTime / averageWaitingTime;
+
+            if (ratio < 0.5) count[0]++;
+            else if (ratio < 1.0) count[1]++;
+            else if (ratio < 1.5) count[2]++;
+            else if (ratio < 2.0) count[3]++;
+            else count[4]++;
+        }
+
+        System.out.println("   [WAITING TIME DISTRIBUTION OF FINISHED REQUESTS]");
+        String[] descriptions = {
+                "Very Fast (<50% avg)",
+                "Fast (50-100% avg)",
+                "Average (100-150% avg)",
+                "Slow (150-200% avg)",
+                "Starved (>200% avg)"
+        };
+        if(finishedRequests == 0){
+            System.out.println("0 REQUESTS FINISHED!!!");
+        }
+
+        for (int i = 0; i < 5; i++) {
+            double percentage = (count[i] * 100.0) / finishedRequests;
+            System.out.printf("     %-25s [%5d] %5.1f%% : ", descriptions[i], count[i], percentage);
+
+            for (int j = 0; j < (int) percentage; j++) {
+                System.out.print("■");
+            }
+            System.out.println();
+        }
     }
 }
