@@ -456,6 +456,10 @@ public class Main {
                 //remove all impossible to finish in time requests
                 final int currentTime = time;//for lambda
                 final int currentHeadPosition = headPosition;//for lambda
+                for (Request request: deadlineList){
+                    request.update(time, headPosition);
+                    request.finishTime = -1;
+                }
                 deadlineList.removeIf(request ->
                         currentTime + Math.abs(request.position - currentHeadPosition) > request.deadline
                 );
