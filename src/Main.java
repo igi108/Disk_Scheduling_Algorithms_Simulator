@@ -326,7 +326,7 @@ public class Main {
         //todo get results
     }
 
-    //when there are deadline requests: only SSTF deadline are done, when there are none, C_SCAN
+    //when there are deadline requests: only earliest deadline is done (tries to be done), when there are none, C_SCAN
     private static void EDF(){
 
         generateRequests();
@@ -362,7 +362,7 @@ public class Main {
                 headPosition ++;
             }
             else {
-                //if there are any deadline requests: apply SSTF algorithm, but do not check if it can be done on time
+                //if there are any deadline requests: find earliest, but do not check if it can be done on time
 
                 //find earliest deadline request
                 earliestDeadlineRequest = deadlineList.getFirst();
@@ -374,7 +374,7 @@ public class Main {
                     }
                 }
 
-                //move to the closest
+                //move to the earliest
                 if(earliestDeadlineRequest.position > headPosition) headPosition ++;
                 if(earliestDeadlineRequest.position < headPosition) headPosition --;
             }
