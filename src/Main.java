@@ -88,6 +88,7 @@ public class Main {
 
         FCFS();
         SSTF();
+        SCAN();
 
     }
 
@@ -231,6 +232,58 @@ public class Main {
         }
         //todo get results
 
+    }
+
+    private static void SCAN(){
+
+        int time = 0;
+        int headPosition = diskSize / 2;
+        int velocity = 1;
+        int totalMoves = 0;
+
+        //here will be all waiting requests
+        List<Request> list = new ArrayList<>(totalRequests);
+        //here will be all still waiting deadline requests
+        List<Request> deadlineList = new ArrayList<>((int)Math.round(deadlinesPercentage * totalRequests));
+        int lastAddedId = 0;
+
+        while (true){
+            //add created requests
+            while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
+                Request request = array[lastAddedId];
+                list.add(request);
+                if(request.deadline != -1){
+                    deadlineList.add(request);
+                }
+                lastAddedId ++;
+            }
+
+            //move head
+            if(headPosition == 0) velocity = 1;
+            if(headPosition == diskSize) velocity = -1;
+            headPosition += velocity;
+            time ++;
+            totalMoves ++;
+
+            //update all requests on current head position
+            for (Request request: list){
+                request.update(time, headPosition);
+            }
+
+            //update all deadline requests to delete out of deadline requests
+            for (Request request: deadlineList){
+                request.update(time, headPosition);
+            }
+            deadlineList.removeIf(request -> request.finished);//delete out od deadline requests
+            list.removeIf(request -> request.finished);//delete out od deadline requests
+
+            //check if simulation is done
+            if(lastAddedId == totalRequests && list.isEmpty()){
+                break;
+            }
+        }
+
+        //todo get results
     }
 
     //array of requests. There are all the requests, even ones not already "created"
