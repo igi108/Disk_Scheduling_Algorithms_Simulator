@@ -90,6 +90,7 @@ public class Main {
         SSTF();
         SCAN();
         G_SCAN();
+        EDF();
 
     }
 
@@ -339,8 +340,8 @@ public class Main {
         List<Request> deadlineList = new ArrayList<>((int)Math.round(deadlinesPercentage * totalRequests));
         int lastAddedId = 0;
 
-        Request closestDeadlineRequest;
-        int closestDeadlineRequestPosition;
+        Request earliestDeadlineRequest;
+        int earliestDeadline;
 
         while (true){
             //add created requests
@@ -363,24 +364,22 @@ public class Main {
             else {
                 //if there are any deadline requests: apply SSTF algorithm, but do not check if it can be done on time
 
-                //find closest deadline request
-                closestDeadlineRequest = deadlineList.getFirst();
-                closestDeadlineRequestPosition = Math.abs(closestDeadlineRequest.position - headPosition);
-                int distance;
-                for (Request request: list){
-                    distance = Math.abs(request.position - headPosition);
-                    if(distance < closestDeadlineRequestPosition){
-                        closestDeadlineRequest = request;
-                        closestDeadlineRequestPosition = Math.abs(closestDeadlineRequest.position - headPosition);
+                //find earliest deadline request
+                earliestDeadlineRequest = deadlineList.getFirst();
+                earliestDeadline = earliestDeadlineRequest.deadline;
+                for (Request request : deadlineList){
+                    if(request.deadline < earliestDeadline){
+                        earliestDeadlineRequest = request;
+                        earliestDeadline = earliestDeadlineRequest.deadline;
                     }
                 }
 
                 //move to the closest
-                if(closestDeadlineRequest.position > headPosition) headPosition ++;
-                if(closestDeadlineRequest.position < headPosition) headPosition --;
+                if(earliestDeadlineRequest.position > headPosition) headPosition ++;
+                if(earliestDeadlineRequest.position < headPosition) headPosition --;
             }
-            time ++;
             totalMoves ++;
+            time ++;
 
             //update requests based on used algorithm
             if(deadlineList.isEmpty()){
