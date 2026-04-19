@@ -89,6 +89,7 @@ public class Main {
         FCFS();
         SSTF();
         SCAN();
+        G_SCAN();
 
     }
 
@@ -261,6 +262,49 @@ public class Main {
             if(headPosition == 0) velocity = 1;
             if(headPosition == diskSize - 1) velocity = -1;
             headPosition += velocity;
+            time ++;
+            totalMoves ++;
+
+            //update all requests on current head position.
+            for (Request request: list){
+                request.update(time, headPosition);
+            }
+
+            //delete out of deadline requests and finished requests
+            list.removeIf(request -> request.finished);//delete finished
+
+            //check if simulation is done
+            if(lastAddedId == totalRequests && list.isEmpty()){
+                break;
+            }
+        }
+
+        //todo get results
+    }
+
+    private static void G_SCAN(){
+
+        generateRequests();
+
+        int time = 0;
+        int headPosition = diskSize / 2;
+        int totalMoves = 0;
+
+        //here will be all waiting requests
+        List<Request> list = new ArrayList<>(totalRequests);
+        int lastAddedId = 0;
+
+        while (true){
+            //add created requests
+            while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
+                Request request = array[lastAddedId];
+                list.add(request);
+                lastAddedId ++;
+            }
+
+            //move head, if it reaches end of disk space, move it instantly to beginning
+            if(headPosition == diskSize - 1) headPosition = 0;
+            headPosition ++;
             time ++;
             totalMoves ++;
 
