@@ -325,6 +325,90 @@ public class Main {
         //todo get results
     }
 
+    //when there are deadline requests: only SSTF deadline are done, when there are none, C_SCAN
+    private static void EDF(){
+
+        generateRequests();
+
+        int time = 0;
+        int headPosition = diskSize / 2;
+        int totalMoves = 0;
+
+        //here will be all no deadline waiting requests
+        List<Request> list = new ArrayList<>(totalRequests);
+        List<Request> deadlineList = new ArrayList<>((int)Math.round(deadlinesPercentage * totalRequests));
+        int lastAddedId = 0;
+
+        Request closestDeadlineRequest;
+        int closestDeadlineRequestPosition;
+
+        while (true){
+            //add created requests
+            while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
+                Request request = array[lastAddedId];
+                if(request.deadline != -1){
+                    deadlineList.add(request);
+                }else {
+                    list.add(request);
+                }
+                lastAddedId ++;
+            }
+
+            //choose algorithm
+            if(deadlineList.isEmpty()){
+                //move head, if it reaches end of disk space, move it instantly to beginning
+                if(headPosition == diskSize - 1) headPosition = -1;//-1 so next would be id=0
+                headPosition ++;
+            }
+            else {
+                //if there are any deadline requests: apply SSTF algorithm, but do not check if it can be done on time
+
+                //find closest deadline request
+                closestDeadlineRequest = deadlineList.getFirst();
+                closestDeadlineRequestPosition = Math.abs(closestDeadlineRequest.position - headPosition);
+                int distance;
+                for (Request request: list){
+                    distance = Math.abs(request.position - headPosition);
+                    if(distance < closestDeadlineRequestPosition){
+                        closestDeadlineRequest = request;
+                        closestDeadlineRequestPosition = Math.abs(closestDeadlineRequest.position - headPosition);
+                    }
+                }
+
+                //move to the closest
+                if(closestDeadlineRequest.position > headPosition) headPosition ++;
+                if(closestDeadlineRequest.position < headPosition) headPosition --;
+            }
+            time ++;
+            totalMoves ++;
+
+            //update requests based on used algorithm
+            if(deadlineList.isEmpty()){
+                //update basic requests on current head position.
+                for (Request request: list){
+                    request.update(time, headPosition);
+                }
+                //delete finished requests
+                list.removeIf(request -> request.finished);
+            }
+            else {
+                //update deadline requests
+                for (Request request: deadlineList){
+                    request.update(time, headPosition);
+                }
+                //delete finished request and out of deadline requests
+                deadlineList.removeIf(request -> request.finished);
+            }
+
+            //check if simulation is done
+            if(lastAddedId == totalRequests && list.isEmpty() && deadlineList.isEmpty()){
+                break;
+            }
+        }
+
+        //todo get results
+    }
+
     //array of requests. There are all the requests, even ones not already "created"
     static Request[] array;
 
