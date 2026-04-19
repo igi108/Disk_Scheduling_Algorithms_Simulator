@@ -9,26 +9,26 @@ public class Main {
     static final int seed = 123456789;
 
     //total amount of disk positions
-    static final int diskSize = 1000;
+    static final int diskSize = 2000;
     //total amount of requests created during one simulation
-    static final int totalRequests = 5000;
+    static final int totalRequests = 3000;
     //requests arrival time (min time of simulation)
-    static final int totalArrivalTime = 100000;
+    static final int totalArrivalTime = 20000;
 
 
     //percentage of cluttered requests (many reads/writes in one place)
-    static final double clutterPercentage = 0.1;
+    static final double clutterPercentage = 0.2;
     //number of clutter groups (number of big file reads/writes in one place)
-    static final int numberOfClutters = 5;
+    static final int numberOfClutters = 6;
     //distance between middle of clutter to its furthest request;
-    static final int maxClutterDistance = 50;
+    static final int maxClutterDistance = 80;
 
 
     //percentage of requests with deadlines (applies only to basic requests, not clutters)
-    static final double deadlinesPercentage = 0.05;
+    static final double deadlinesPercentage = 0.08;
     //max, min available time for request deadline
     static final int maxDeadline = 500;
-    static final int minDeadline = 100;
+    static final int minDeadline = 20;
 
     private static void generateRequests(){
         Random random = new Random(seed);
