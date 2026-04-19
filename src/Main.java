@@ -91,6 +91,7 @@ public class Main {
         SCAN();
         G_SCAN();
         EDF();
+        FD_SCAN();
 
     }
 
@@ -398,6 +399,99 @@ public class Main {
                 //delete finished request and out of deadline requests
                 deadlineList.removeIf(request -> request.finished);
             }
+
+            //check if simulation is done
+            if(lastAddedId == totalRequests && list.isEmpty() && deadlineList.isEmpty()){
+                break;
+            }
+        }
+
+        //todo get results
+    }
+
+    //when there are deadline requests: earliest deadline is done (that can still be done)
+    // and all other requests on its way.
+    // when there are none real-time, C_SCAN
+    private static void FD_SCAN(){
+
+        generateRequests();
+
+        int time = 0;
+        int headPosition = diskSize / 2;
+        int totalMoves = 0;
+
+        //here will be all no deadline waiting requests
+        List<Request> list = new ArrayList<>(totalRequests);
+        //here will be all deadline waiting requests that can still be finished (other ones are discarded)
+        List<Request> deadlineList = new ArrayList<>((int)Math.round(deadlinesPercentage * totalRequests));
+        int lastAddedId = 0;
+
+        Request earliestDeadlineRequest;
+        int earliestDeadline;
+
+        while (true){
+            //add created requests
+            while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
+                Request request = array[lastAddedId];
+                if(request.deadline != -1){
+                    deadlineList.add(request);
+                }else {
+                    list.add(request);
+                }
+                lastAddedId ++;
+            }
+
+            //choose algorithm and move by one unit
+            if(deadlineList.isEmpty()){
+                //move head, if it reaches end of disk space, move it instantly to beginning
+                if(headPosition == diskSize - 1) headPosition = -1;//-1 so next would be id=0
+                headPosition ++;
+            }
+            else {
+                //remove all impossible to finish in time requests
+                final int currentTime = time;//for lambda
+                final int currentHeadPosition = headPosition;//for lambda
+                deadlineList.removeIf(request ->
+                        currentTime + Math.abs(request.position - currentHeadPosition) > request.deadline
+                );
+
+                //search for earliest deadline if there are any left
+                if(!deadlineList.isEmpty()){
+                    //search
+                    earliestDeadlineRequest = deadlineList.getFirst();
+                    earliestDeadline = earliestDeadlineRequest.deadline;
+                    for (Request request : deadlineList){
+                        if(request.deadline < earliestDeadline){
+                            earliestDeadlineRequest = request;
+                            earliestDeadline = earliestDeadlineRequest.deadline;
+                        }
+                    }
+
+                    //move to the closest
+                    if(earliestDeadlineRequest.position > headPosition) headPosition ++;
+                    if(earliestDeadlineRequest.position < headPosition) headPosition --;
+                }
+                else {
+                    //move head, if it reaches end of disk space, move it instantly to beginning
+                    if(headPosition == diskSize - 1) headPosition = -1;//-1 so next would be id=0
+                    headPosition ++;
+                }
+            }
+            time ++;
+            totalMoves ++;
+
+
+            //update all requests on its way
+            for (Request request: list){
+                request.update(time, headPosition);
+            }
+            for (Request request: deadlineList){
+                request.update(time, headPosition);
+            }
+
+            //delete finished requests
+            list.removeIf(request -> request.finished);
+            deadlineList.removeIf(request -> request.finished);
 
             //check if simulation is done
             if(lastAddedId == totalRequests && list.isEmpty() && deadlineList.isEmpty()){
