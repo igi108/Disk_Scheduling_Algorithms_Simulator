@@ -238,6 +238,8 @@ public class Main {
 
     private static void SCAN(){
 
+        generateRequests();
+
         int time = 0;
         int headPosition = diskSize / 2;
         int velocity = 1;
@@ -245,8 +247,6 @@ public class Main {
 
         //here will be all waiting requests
         List<Request> list = new ArrayList<>(totalRequests);
-        //here will be all still waiting deadline requests
-        List<Request> deadlineList = new ArrayList<>((int)Math.round(deadlinesPercentage * totalRequests));
         int lastAddedId = 0;
 
         while (true){
@@ -254,30 +254,23 @@ public class Main {
             while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
                 Request request = array[lastAddedId];
                 list.add(request);
-                if(request.deadline != -1){
-                    deadlineList.add(request);
-                }
                 lastAddedId ++;
             }
 
             //move head
             if(headPosition == 0) velocity = 1;
-            if(headPosition == diskSize) velocity = -1;
+            if(headPosition == diskSize - 1) velocity = -1;
             headPosition += velocity;
             time ++;
             totalMoves ++;
 
-            //update all requests on current head position
+            //update all requests on current head position.
             for (Request request: list){
                 request.update(time, headPosition);
             }
 
-            //update all deadline requests to delete out of deadline requests
-            for (Request request: deadlineList){
-                request.update(time, headPosition);
-            }
-            deadlineList.removeIf(request -> request.finished);//delete out od deadline requests
-            list.removeIf(request -> request.finished);//delete out od deadline requests
+            //delete out of deadline requests and finished requests
+            list.removeIf(request -> request.finished);//delete finished
 
             //check if simulation is done
             if(lastAddedId == totalRequests && list.isEmpty()){
