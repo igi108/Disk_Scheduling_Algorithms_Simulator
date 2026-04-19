@@ -303,7 +303,7 @@ public class Main {
             }
 
             //move head, if it reaches end of disk space, move it instantly to beginning
-            if(headPosition == diskSize - 1) headPosition = 0;
+            if(headPosition == diskSize) headPosition = -1;//move to -1 so next position would be id=0
             headPosition ++;
             time ++;
             totalMoves ++;
