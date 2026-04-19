@@ -205,7 +205,11 @@ public class Main {
                 }
 
             }else {//if at the moment no requests exist, jump to next
-                time++;
+                if (lastAddedId < totalRequests) {
+                    time = array[lastAddedId].arrivalTime;
+                } else {
+                    break;
+                }
             }
             //update all deadline requests to delete out of deadline requests
             for (Request request: deadlineList){
