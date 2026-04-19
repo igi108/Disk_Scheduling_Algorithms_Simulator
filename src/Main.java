@@ -121,12 +121,17 @@ public class Main {
                     time += Math.abs(previousPosition - headPosition);
 
                 }else {//when there is deadline, move as long as request exists, or until it is finished
-                    int timeUntil = Math.abs(request.deadline - time);//time until request deletes itself
+                    int timeUntil = request.deadline - time;//time until request deletes itself
                     int deltaPosition = request.position - previousPosition;
 
                     int min = Math.min(timeUntil, Math.abs(deltaPosition));
                     time += min;
-                    headPosition += min;
+                    if (request.position > headPosition) {
+                        headPosition += min;
+                    } else {
+                        headPosition -= min;
+                    }
+
                 }
                 totalMoves += Math.abs(previousPosition - headPosition);
 
