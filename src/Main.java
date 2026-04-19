@@ -124,12 +124,19 @@ public class Main {
                     int timeUntil = request.deadline - time;//time until request deletes itself
                     int deltaPosition = request.position - previousPosition;
 
-                    int min = Math.min(timeUntil, Math.abs(deltaPosition));
-                    time += min;
-                    if (request.position > headPosition) {
-                        headPosition += min;
-                    } else {
-                        headPosition -= min;
+                    if(timeUntil < Math.abs(deltaPosition)){
+                        //if cannot be reached before deadline, move as long as request exist and then delete it
+                        time += timeUntil;
+                        if (request.position > headPosition) {
+                            headPosition += timeUntil;
+                        } else {
+                            headPosition -= timeUntil;
+                        }
+                        request.finishTime = -1;
+                        list.remove(request);
+                    }else {
+                        time += Math.abs(deltaPosition);
+                        headPosition += deltaPosition;
                     }
 
                 }
