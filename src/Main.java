@@ -150,6 +150,8 @@ public class Main {
 
     private static void SSTF(){
 
+        generateRequests();
+
         int time = 0;
         int totalMoves = 0;
         int headPosition = diskSize / 2;
