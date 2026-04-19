@@ -13,7 +13,7 @@ public class Main {
     //total amount of requests created during one simulation
     static final int totalRequests = 5000;
     //requests arrival time (min time of simulation)
-    static final int totalArrivalTime = 10000;
+    static final int totalArrivalTime = 100000;
 
 
     //percentage of cluttered requests (many reads/writes in one place)
@@ -86,13 +86,13 @@ public class Main {
 
     static void main(String[] args) {
 
-        generateRequests();
         FCFS();
+        SSTF();
 
     }
 
     private static void FCFS(){
-
+        generateRequests();
         int totalMoves = 0;
         int time = 0;
         int headPosition = diskSize / 2;
@@ -101,7 +101,6 @@ public class Main {
         List<Request> list = new ArrayList<>(totalRequests);
 
         while (true){
-
             //add created requests
             while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
                 list.add(array[lastAddedId]);
