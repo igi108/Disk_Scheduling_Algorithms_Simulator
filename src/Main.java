@@ -147,6 +147,89 @@ public class Main {
         }
         //todo get results
     }
+
+    private static void SSTF(){
+
+        int time = 0;
+        int totalMoves = 0;
+        int headPosition = diskSize / 2;
+
+        //here will be all waiting requests
+        List<Request> list = new ArrayList<>(totalRequests);
+        //here will be all still waiting deadline requests
+        List<Request> deadlineList = new ArrayList<>((int)Math.round(deadlinesPercentage * totalRequests));
+        int lastAddedId = 0;
+
+        boolean newClosestHasToBeFound = true;
+        Request closestRequest = null;
+        int closestDistance;
+
+        while (true){
+
+            //add created requests
+            while (lastAddedId < totalRequests && array[lastAddedId].arrivalTime <= time){
+                Request request = array[lastAddedId];
+                list.add(request);
+                if(request.deadline != -1){
+                    deadlineList.add(request);
+                }
+                lastAddedId ++;
+                newClosestHasToBeFound = true;
+            }
+
+            //move to current closest request
+            if(!list.isEmpty()){
+                //search for the closest if new was added
+                if(newClosestHasToBeFound){
+                    closestRequest = list.getFirst();
+                    closestDistance = Math.abs(closestRequest.position - headPosition);
+                    int distance;
+                    for (Request request: list){
+                        distance = Math.abs(request.position - headPosition);
+                        if(distance < closestDistance){
+                            closestRequest = request;
+                            closestDistance = Math.abs(closestRequest.position - headPosition);
+                        }
+                    }
+                }
+                //move to the closest
+                if(closestRequest.position > headPosition) headPosition ++;
+                if(closestRequest.position < headPosition) headPosition --;
+
+                time ++;
+                totalMoves ++;
+                closestRequest.update(time, headPosition);
+                if(closestRequest.finished){
+                    list.remove(closestRequest);
+                    deadlineList.remove(closestRequest);
+                    closestRequest = null;
+                }
+
+            }else {//if at the moment no requests exist, jump to next
+                time++;
+            }
+            //update all deadline requests to delete out of deadline requests
+            for (Request request: deadlineList){
+                request.update(time, headPosition);
+            }
+            deadlineList.removeIf(request -> request.finished);//delete out od deadline requests
+            list.removeIf(request -> request.finished);//delete out od deadline requests
+            if (list.contains(closestRequest)) {
+                newClosestHasToBeFound = false;
+            }else {
+                newClosestHasToBeFound = true;
+            }
+
+            //check if simulation is done
+            if(lastAddedId == totalRequests && list.isEmpty()){
+                break;
+            }
+
+        }
+        //todo get results
+
+    }
+
     //array of requests. There are all the requests, even ones not already "created"
     static Request[] array;
 
