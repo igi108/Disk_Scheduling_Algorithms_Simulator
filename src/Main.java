@@ -42,6 +42,16 @@ public class Main {
 
     }
 
+    private static void testAllAlgorithms(){
+        printMainReport();
+        FCFS();
+        SSTF();
+        SCAN();
+        G_SCAN();
+        EDF();
+        FD_SCAN();
+    }
+
     private static void generateRequests(){
         Random random = new Random(seed);
         int requestsGenerated = 0;
