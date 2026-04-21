@@ -9,26 +9,38 @@ public class Main {
     static final int seed = 123456789;
 
     //total amount of disk positions
-    static final int diskSize = 2000;
+    static int diskSize = 2000;
     //total amount of requests created during one simulation
-    static final int totalRequests = 3000;
+    static int totalRequests = 3000;
     //requests arrival time (min time of simulation)
-    static final int totalArrivalTime = 20000;
+    static int totalArrivalTime = 20000;
 
 
     //percentage of cluttered requests (many reads/writes in one place)
-    static final double clutterPercentage = 0.2;
+    static double clutterPercentage = 0.2;
     //number of clutter groups (number of big file reads/writes in one place)
-    static final int numberOfClutters = 6;
+    static int numberOfClutters = 6;
     //distance between middle of clutter to its furthest request;
-    static final int maxClutterDistance = 80;
+    static int maxClutterDistance = 80;
 
 
     //percentage of requests with deadlines (applies only to basic requests, not clutters)
-    static final double deadlinesPercentage = 0.08;
+    static double deadlinesPercentage = 0.08;
     //max, min available time for request deadline
-    static final int maxDeadline = 500;
-    static final int minDeadline = 20;
+    static int maxDeadline = 500;
+    static int minDeadline = 20;
+
+    static void main(String[] args) {
+
+        printMainReport();
+        FCFS();
+        SSTF();
+        SCAN();
+        G_SCAN();
+        EDF();
+        FD_SCAN();
+
+    }
 
     private static void generateRequests(){
         Random random = new Random(seed);
@@ -82,18 +94,6 @@ public class Main {
             }
         }
         Arrays.sort(array, Comparator.comparingInt(a -> a.arrivalTime));
-    }
-
-    static void main(String[] args) {
-
-        printMainReport();
-        FCFS();
-        SSTF();
-        SCAN();
-        G_SCAN();
-        EDF();
-        FD_SCAN();
-
     }
 
     private static void FCFS(){
