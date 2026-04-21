@@ -31,14 +31,45 @@ public class Main {
     static int minDeadline = 20;
 
     static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
 
-        printMainReport();
-        FCFS();
-        SSTF();
-        SCAN();
-        G_SCAN();
-        EDF();
-        FD_SCAN();
+        //test normal system usage
+        testAllAlgorithms();
+
+        //test random chaos
+        if(scanner.hasNextLine()){
+            diskSize = 2000;
+            totalRequests = 6000;
+            totalArrivalTime = 50000;
+
+            clutterPercentage = 0.02;
+            numberOfClutters = 1;
+            maxClutterDistance = 200;
+
+            deadlinesPercentage = 0.02;
+            minDeadline = 10;
+            maxDeadline = 50;
+
+            testAllAlgorithms();
+            scanner.nextLine();
+        }
+
+        //test many system files
+        if(scanner.hasNextLine()){
+            diskSize = 2000;
+            totalRequests = 3000;
+            totalArrivalTime = 15000;
+
+            clutterPercentage = 0.60;
+            numberOfClutters = 4;
+            maxClutterDistance = 40;
+
+            deadlinesPercentage = 0.05;
+            minDeadline = 50;
+            maxDeadline = 300;
+
+            testAllAlgorithms();
+        }
 
     }
 
