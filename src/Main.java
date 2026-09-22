@@ -5,7 +5,10 @@ import java.util.*;
 //one disk-head move is one time unit
 
 public class Main {
-
+    /**
+     * <p>Seed is used to get same created requests for every algorithm. Thanks to that, algorithms
+     * can be compared on same input.</p>
+     */
     static final int seed = 123456789;
 
     /**
