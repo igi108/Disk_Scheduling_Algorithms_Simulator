@@ -1,183 +1,23 @@
-import java.util.*;
+package tools;
 
-//percentage 0.0 - 1.0
+import java.util.ArrayList;
+import java.util.List;
 
-//one disk-head move is one time unit
+import static tools.Printer.printAlgorithmReport;
+import static tools.RequestsGeneration.generateRequests;
+import static main.Settings.*;
 
-public class Main {
+public class Algorithms {
     /**
-     * <p>Seed is used to get same created requests for every algorithm. Thanks to that, algorithms
-     * can be compared on same input.</p>
+     * <p>Array of past and future requests. There are all the requests, even ones not already waiting for
+     * the disk.</p>
      */
-    static final int seed = 123456789;
-
-    /**
-     * <p>Total amount of disk space. This is also number of positions that disk's head can reach.</p>
-     */
-    static int diskSize = 2000;
-    /**
-     * <p>Total amount of requests created during simulation of one algorithm.</p>
-     */
-    static int totalRequests = 3000;
-    /**
-     * <p>Request arrives between time=0 and this number.</p>
-     */
-    static int totalArrivalTime = 20000;
-
-
-    /**
-     * <p>Percentage of cluttered requests (many reads/writes in small space).</p>
-     * <b>Large percentage causes head to stay in small space in some algorithms.</b>
-     */
-    static double clutterPercentage = 0.2;
-    /**
-     * <p>Number of clutter groups (number of big file reads/writes in small space). Assuming the disk
-     * is not fragmented, parts of file will be close to each other.</p>
-     */
-    static int numberOfClutters = 6;
-    /**
-     * <p>Radius of clutter in disk space.
-     * Distance between middle of clutter to its furthest request.</p>
-     */
-    static int maxClutterDistance = 80;
-
-
-    /**
-     * <p>Percentage of requests with deadlines (applies only to basic requests, not clutters meaning clutter has
-     * no deadline requests).</p>
-     */
-    static double deadlinesPercentage = 0.08;
-    /**
-     * <p>Max available time for request's deadline.</p>
-     */
-    static int maxDeadline = 500;
-    /**
-     * <p>Min available time for request's deadline.</p>
-     */
-    static int minDeadline = 20;
-
-    static void main(String[] args) {
-        Scanner scanner = new Scanner(System.in);
-
-        //test normal system usage
-        diskSize = 2000;
-        totalRequests = 3000;
-        totalArrivalTime = 20000;
-        clutterPercentage = 0.2;
-        numberOfClutters = 6;
-        maxClutterDistance = 80;
-        deadlinesPercentage = 0.08;
-        minDeadline = 20;
-        maxDeadline = 500;
-        testAllAlgorithms();
-        System.out.println("\nPress ENTER to continue...");
-
-        //test random chaos
-        if(scanner.hasNextLine()){
-            diskSize = 2000;
-            totalRequests = 6000;
-            totalArrivalTime = 50000;
-            clutterPercentage = 0.02;
-            numberOfClutters = 1;
-            maxClutterDistance = 200;
-            deadlinesPercentage = 0.02;
-            minDeadline = 10;
-            maxDeadline = 50;
-            testAllAlgorithms();
-            System.out.println("\nPress ENTER to continue...");
-            scanner.nextLine();
-        }
-
-        //test many system files
-        if(scanner.hasNextLine()){
-            diskSize = 2000;
-            totalRequests = 3000;
-            totalArrivalTime = 15000;
-            clutterPercentage = 0.60;
-            numberOfClutters = 4;
-            maxClutterDistance = 40;
-            deadlinesPercentage = 0.05;
-            minDeadline = 50;
-            maxDeadline = 300;
-            testAllAlgorithms();
-        }
-
-    }
-
-    /**
-     * <p>Performs all algorithms for chosen inputs.</p>
-     */
-    private static void testAllAlgorithms(){
-        printSettings();
-        FCFS();
-        SSTF();
-        SCAN();
-        C_SCAN();
-        EDF();
-        FD_SCAN();
-    }
-
-    /**
-     * <p>Generates requests in order based on input seed. Every call of this function generates
-     * exact same requests.</p>
-     */
-    private static void generateRequests(){
-        Random random = new Random(seed);
-        int requestsGenerated = 0;
-        array = new Request[totalRequests];
-
-        int notClutteredRequests = (int)Math.round(totalRequests * (1.0 - clutterPercentage));
-
-        //generate basic requests
-        for (int i = 0; i < notClutteredRequests; i++){
-            Request request= new Request();
-            request.arrivalTime = randomInt(0, totalArrivalTime, random);
-            request.position = randomInt(0, diskSize, random);
-
-            array[requestsGenerated] = request;
-            requestsGenerated ++;
-        }
-
-        int requestsWithDeadlines = (int)Math.round(deadlinesPercentage * totalRequests);
-        int i = 0;
-        //set deadlines only for basic requests
-        while (i < requestsWithDeadlines){
-            int randRequest = randomInt(0, requestsGenerated, random);
-            Request request = array[randRequest];
-            if(request.deadline == -1){
-                request.deadline = request.arrivalTime + randomInt(minDeadline, maxDeadline, random);
-                i++;
-            }
-        }
-
-        int clutteredRequests = (int)Math.round(totalRequests * clutterPercentage);
-        int requestsPerClutter = Math.max(1, clutteredRequests / numberOfClutters);
-        //generate clutters - equal distribution in time
-        for (int clutter = 0; clutter < numberOfClutters; clutter++){
-
-            int clutterArrivalTime = randomInt(0, totalArrivalTime, random);
-            int clutterPosition = randomInt(0, diskSize, random);//middle of clutter on disk
-
-            //generate requests in clutter
-            for (int j = 0; j < requestsPerClutter; j++){
-                Request request = new Request();
-                request.arrivalTime = clutterArrivalTime;
-                array[requestsGenerated] = request;
-                requestsGenerated ++;
-
-                int position = clutterPosition + randomInt(- maxClutterDistance, maxClutterDistance, random);
-                if(position > diskSize) position = diskSize;
-                if(position < 0) position = 0;
-                request.position = position;
-            }
-        }
-        Arrays.sort(array, Comparator.comparingInt(a -> a.arrivalTime));
-    }
+    public static Request[] array;
 
     /**
      * <p>FIRST COME FIRST SERVE. Requests are done in order of their arrival</p>
      */
-    private static void FCFS(){
+    public static void FCFS(){
         generateRequests();
         int totalMoves = 0;
         int time = 0;
@@ -245,10 +85,10 @@ public class Main {
     }
 
     /**
-     * <p>SHORTEST SEEK TIME FIRST. Request closest to the head is done first. In case of another request arriving,
+     * <p>SHORTEST SEEK TIME FIRST. tools.Request closest to the head is done first. In case of another request arriving,
      * that is closer to the head, new one is chosen as the closest.</p>
      */
-    private static void SSTF(){
+    public static void SSTF(){
 
         generateRequests();
 
@@ -340,7 +180,7 @@ public class Main {
      * <p>SCAN. Head is moving in one direction doing all requests on it's path
      * until it reaches end of space, then head moves opposite direction.</p>
      */
-    private static void SCAN(){
+    public static void SCAN(){
 
         generateRequests();
 
@@ -390,7 +230,7 @@ public class Main {
      * until it reaches end of space, then head moves to beginning of space instantly without doing any
      * requests on it's way back.</p>
      */
-    private static void C_SCAN(){
+    public static void C_SCAN(){
 
         generateRequests();
 
@@ -440,7 +280,7 @@ public class Main {
      * <b>If deadlines are too small, this algorithm will still try to do the earliest one, which might result in none
      * of deadline request being done.</b>
      */
-    private static void EDF(){
+    public static void EDF(){
 
         generateRequests();
 
@@ -527,7 +367,7 @@ public class Main {
      * (and also does every other request on head's path)</p>
      * <b>Algorithm will filter out deadline requests and will not try to reach ones with too close deadline.</b>
      */
-    private static void FD_SCAN(){
+    public static void FD_SCAN(){
 
         generateRequests();
 
@@ -619,141 +459,5 @@ public class Main {
         }
 
         printAlgorithmReport("FD-SCAN", time, totalMoves);
-    }
-
-    /**
-     * <p>Array of past and future requests. There are all the requests, even ones not already waiting for
-     * the disk.</p>
-     */
-    static Request[] array;
-
-    /**
-     * <p>Generates random int value (inclusive).</p>
-     */
-    private static int randomInt(int min, int max, Random random){
-        return random.nextInt(max - min) + min;
-    }
-
-    /**
-     * <p>Prints configuration of inputs before starting simulation.</p>
-     */
-    private static void printSettings() {
-        System.out.println("=====================================================");
-        System.out.println("            DISK SIMULATION CONFIGURATION");
-        System.out.println("=====================================================");
-        System.out.printf("   - %-35s %d\n", "Disk size (blocks):", diskSize);
-        System.out.printf("   - %-35s %d\n", "Total number of requests:", totalRequests);
-        System.out.printf("   - %-35s %d\n", "Max request creation time:", totalArrivalTime);
-        System.out.println("-----------------------------------------------------");
-        System.out.printf("   - %-35s %.1f%%\n", "Clustered requests:", clutterPercentage * 100);
-        System.out.printf("   - %-35s %d\n", "Number of clusters:", numberOfClutters);
-        System.out.printf("   - %-35s %d\n", "Max cluster radius:", maxClutterDistance);
-        System.out.println("-----------------------------------------------------");
-        System.out.printf("   - %-35s %.1f%%\n", "Real-Time requests:", deadlinesPercentage * 100);
-        System.out.printf("   - %-35s %d / %d\n", "Deadline time range (Min/Max):", minDeadline, maxDeadline);
-        System.out.println("=====================================================\n");
-    }
-
-    /**
-     * <p>Prints summary of single algorithm result.</p>
-     */
-    private static void printAlgorithmReport(String algorithmName, int simulationTime, int totalMoves) {
-        long totalTimeWaiting = 0;
-        int minTimeWaiting = Integer.MAX_VALUE;
-        int maxTimeWaiting = 0;
-
-        int realTimeRequestsNumber = 0;
-        int missedDeadlines = 0;
-        int finishedRequests = 0;
-
-        for (Request request : array) {
-            boolean isRealTime = (request.deadline != -1);
-            if (isRealTime) realTimeRequestsNumber++;
-
-            //if finishTime is -1, request was timed out
-            if (request.finishTime == -1) {
-                missedDeadlines++;
-                continue;
-            }
-
-            int requestWaitTime = request.finishTime - request.arrivalTime;
-            totalTimeWaiting += requestWaitTime;
-            finishedRequests ++;
-
-            if (requestWaitTime < minTimeWaiting) minTimeWaiting = requestWaitTime;
-            if (requestWaitTime > maxTimeWaiting) maxTimeWaiting = requestWaitTime;
-        }
-
-        double averageWaitTime;
-        double successRate;
-        if(finishedRequests != 0){
-            averageWaitTime = (double) totalTimeWaiting / (double) finishedRequests;
-        }else {
-            averageWaitTime = 0;
-        }
-        if(realTimeRequestsNumber != 0){
-            successRate = 100.0 * ((double) (realTimeRequestsNumber - missedDeadlines) / (double) realTimeRequestsNumber);
-        }else {
-            successRate = 100.0;
-        }
-
-        System.out.println(">>> ALGORITHM REPORT: " + algorithmName);
-        System.out.printf("   - %-35s %d\n", "Total simulation time:", simulationTime);
-        System.out.printf("   - %-35s %d\n", "Total head movements:", totalMoves);
-        System.out.println("   [WAITING STATISTICS]");
-        System.out.printf("   - %-35s %.2f\n", "Average waiting time:", averageWaitTime);
-        System.out.printf("   - %-35s %d\n", "Minimum waiting time:", minTimeWaiting);
-        System.out.printf("   - %-35s %d\n", "Maximum waiting time:", maxTimeWaiting);
-        System.out.println("   [REAL-TIME PERFORMANCE]");
-        System.out.printf("   - %-35s %.2f%%\n", "Deadline success rate:", successRate);
-        System.out.printf("   - %-35s %d out of %d\n", "Missed deadlines:", missedDeadlines, realTimeRequestsNumber);
-
-        printTimeDistribution(averageWaitTime);
-        System.out.println("\n");
-    }
-
-    /**
-     * <p>Prints distribution of requests times in algorithm compared to average for this algorithm.</p>
-     */
-    private static void printTimeDistribution(double averageWaitingTime) {
-        int[] count = new int[5];//amount of requests per ratio
-
-        int finishedRequests = 0;
-        //prepare distribution
-        for (Request request : array) {
-            if (request.finishTime == -1) continue;//do not count unfinished deadlines
-
-            finishedRequests ++;
-            int waitTime = request.finishTime - request.arrivalTime;
-            double ratio = (double) waitTime / averageWaitingTime;
-
-            if (ratio < 0.5) count[0]++;
-            else if (ratio < 1.0) count[1]++;
-            else if (ratio < 1.5) count[2]++;
-            else if (ratio < 2.0) count[3]++;
-            else count[4]++;
-        }
-
-        System.out.println("   [WAITING TIME DISTRIBUTION OF FINISHED REQUESTS]");
-        String[] descriptions = {
-                "Very Fast (<50% avg)",
-                "Fast (50-100% avg)",
-                "Average (100-150% avg)",
-                "Slow (150-200% avg)",
-                "Starved (>200% avg)"
-        };
-        if(finishedRequests == 0){
-            System.out.println("0 REQUESTS FINISHED!!!");
-        }
-
-        for (int i = 0; i < 5; i++) {
-            double percentage = (count[i] * 100.0) / finishedRequests;
-            System.out.printf("     %-25s [%5d] %5.1f%% : ", descriptions[i], count[i], percentage);
-
-            for (int j = 0; j < (int) percentage; j++) {
-                System.out.print("■");
-            }
-            System.out.println();
-        }
     }
 }
