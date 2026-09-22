@@ -7,19 +7,12 @@
 This project was created as part of an Operating Systems course. It simulates and compares classic disk head scheduling algorithms to analyze head movement, total seek time, and efficiency.
 
 Algorithms simulated in this project:
-
-
-**FCFS**
-
-**SSTF**
-
-**SCAN**
-
-**C_SCAN**
-
-**EDF**
-
-**FD_SCAN**
+- **FCFS**
+- **SSTF**
+- **SCAN**
+- **C_SCAN**
+- **EDF**
+- **FD_SCAN**
 
 ## Preview
 
@@ -32,7 +25,7 @@ Algorithms simulated in this project:
    ```
    or open terminal in project directory.
 
-2. Compile all Java files from `main` and `tools` packages (might not be necessary):
+2. Compile all Java files from `main` and `tools` packages:
    ```cmd
    javac main/*.java tools/*.java
    ```
@@ -40,10 +33,6 @@ Algorithms simulated in this project:
 3. Run the application:
    ```cmd
    java main.Main
-   ```
-   or (in folder "main")
-   ```cmd
-   java Main
    ```
 
 *(Alternatively, you can open the project in any Java IDE like IntelliJ IDEA and run `Main.java` directly.)*
