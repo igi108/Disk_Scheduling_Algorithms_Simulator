@@ -108,7 +108,7 @@ public class Main {
      * <p>Performs all algorithms for chosen inputs.</p>
      */
     private static void testAllAlgorithms(){
-        printMainReport();
+        printSettings();
         FCFS();
         SSTF();
         SCAN();
@@ -637,7 +637,7 @@ public class Main {
     /**
      * <p>Prints configuration of inputs before starting simulation.</p>
      */
-    private static void printMainReport() {
+    private static void printSettings() {
         System.out.println("=====================================================");
         System.out.println("            DISK SIMULATION CONFIGURATION");
         System.out.println("=====================================================");
