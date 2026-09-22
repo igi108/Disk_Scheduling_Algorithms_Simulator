@@ -8,26 +8,49 @@ public class Main {
 
     static final int seed = 123456789;
 
-    //total amount of disk positions
+    /**
+     * <p>Total amount of disk space. This is also number of positions that disk's head can reach.</p>
+     */
     static int diskSize = 2000;
-    //total amount of requests created during one simulation
+    /**
+     * <p>Total amount of requests created during simulation of one algorithm.</p>
+     */
     static int totalRequests = 3000;
-    //requests arrival time (min time of simulation)
+    /**
+     * <p>Request arrives between time=0 and this number.</p>
+     */
     static int totalArrivalTime = 20000;
 
 
-    //percentage of cluttered requests (many reads/writes in one place)
+    /**
+     * <p>Percentage of cluttered requests (many reads/writes in small space).</p>
+     * <b>Large percentage causes head to stay in small space in some algorithms.</b>
+     */
     static double clutterPercentage = 0.2;
-    //number of clutter groups (number of big file reads/writes in one place)
+    /**
+     * <p>Number of clutter groups (number of big file reads/writes in small space). Assuming the disk
+     * is not fragmented, parts of file will be close to each other.</p>
+     */
     static int numberOfClutters = 6;
-    //distance between middle of clutter to its furthest request;
+    /**
+     * <p>Radius of clutter in disk space.
+     * Distance between middle of clutter to its furthest request.</p>
+     */
     static int maxClutterDistance = 80;
 
 
-    //percentage of requests with deadlines (applies only to basic requests, not clutters)
+    /**
+     * <p>Percentage of requests with deadlines (applies only to basic requests, not clutters meaning clutter has
+     * no deadline requests).</p>
+     */
     static double deadlinesPercentage = 0.08;
-    //max, min available time for request deadline
+    /**
+     * <p>Max available time for request's deadline.</p>
+     */
     static int maxDeadline = 500;
+    /**
+     * <p>Min available time for request's deadline.</p>
+     */
     static int minDeadline = 20;
 
     static void main(String[] args) {
@@ -559,7 +582,10 @@ public class Main {
         printAlgorithmReport("FD-SCAN", time, totalMoves);
     }
 
-    //array of requests. There are all the requests, even ones not already "created"
+    /**
+     * <p>Array of past and future requests. There are all the requests, even ones not already waiting for
+     * the disk.</p>
+     */
     static Request[] array;
 
     private static int randomInt(int min, int max, Random random){
