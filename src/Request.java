@@ -29,6 +29,10 @@ public class Request {
         this.finished = false;
     }
 
+    /**
+     * <p>Function called for every request to check if request is done because of current head position,
+     * or request reaches deadline.</p>
+     */
     public void update(int currentTime, int headPosition){
 
         if(headPosition == position){

@@ -96,16 +96,23 @@ public class Main {
 
     }
 
+    /**
+     * <p>Performs all algorithms for chosen inputs.</p>
+     */
     private static void testAllAlgorithms(){
         printMainReport();
         FCFS();
         SSTF();
         SCAN();
-        G_SCAN();
+        C_SCAN();
         EDF();
         FD_SCAN();
     }
 
+    /**
+     * <p>Generates requests in order based on input seed. Every call of this function generates
+     * exact same requests.</p>
+     */
     private static void generateRequests(){
         Random random = new Random(seed);
         int requestsGenerated = 0;
@@ -160,6 +167,9 @@ public class Main {
         Arrays.sort(array, Comparator.comparingInt(a -> a.arrivalTime));
     }
 
+    /**
+     * <p>FIRST COME FIRST SERVE. Requests are done in order of their arrival</p>
+     */
     private static void FCFS(){
         generateRequests();
         int totalMoves = 0;
@@ -227,6 +237,10 @@ public class Main {
         printAlgorithmReport("FCFS", time, totalMoves);
     }
 
+    /**
+     * <p>SHORTEST SEEK TIME FIRST. Request closest to the head is done first. In case of another request arriving,
+     * that is closer to the head, new one is chosen as the closest.</p>
+     */
     private static void SSTF(){
 
         generateRequests();
@@ -315,6 +329,10 @@ public class Main {
 
     }
 
+    /**
+     * <p>SCAN. Head is moving in one direction doing all requests on it's path
+     * until it reaches end of space, then head moves opposite direction.</p>
+     */
     private static void SCAN(){
 
         generateRequests();
@@ -360,7 +378,12 @@ public class Main {
         printAlgorithmReport("SCAN", time, totalMoves);
     }
 
-    private static void G_SCAN(){
+    /**
+     * <p>CIRCULAR SCAN. Head is moving in one direction doing all requests on it's path
+     * until it reaches end of space, then head moves to beginning of space instantly without doing any
+     * requests on it's way back.</p>
+     */
+    private static void C_SCAN(){
 
         generateRequests();
 
@@ -403,7 +426,13 @@ public class Main {
         printAlgorithmReport("C-SCAN", time, totalMoves);
     }
 
-    //when there are deadline requests: only earliest deadline is done (tries to be done), when there are none, C_SCAN
+    /**
+     * <p>EARLIEST DEADLINE FIRST. When there are no deadline requests, algorithm works as C-SCAN.
+     * When there are deadline requests, head tries to do the earliest deadline one (also does every other request on
+     * head's path), without checking if head can even reach it on time.</p>
+     * <b>If deadlines are too small, this algorithm will still try to do the earliest one, which might result in none
+     * of deadline request being done.</b>
+     */
     private static void EDF(){
 
         generateRequests();
@@ -485,9 +514,12 @@ public class Main {
         printAlgorithmReport("EDF", time, totalMoves);
     }
 
-    //when there are deadline requests: earliest deadline is done (that can still be done)
-    // and all other requests on its way.
-    // when there are none real-time, C_SCAN
+    /**
+     * <p>FEASIBLE DEADLINE SCAN. When there are no deadline requests, algorithm works as C-SCAN.
+     * When there are deadline requests, head moves to the earliest deadline one that can still be done
+     * (and also does every other request on head's path)</p>
+     * <b>Algorithm will filter out deadline requests and will not try to reach ones with too close deadline.</b>
+     */
     private static void FD_SCAN(){
 
         generateRequests();
@@ -588,10 +620,16 @@ public class Main {
      */
     static Request[] array;
 
+    /**
+     * <p>Generates random int value (inclusive).</p>
+     */
     private static int randomInt(int min, int max, Random random){
         return random.nextInt(max - min) + min;
     }
 
+    /**
+     * <p>Prints configuration of inputs before starting simulation.</p>
+     */
     private static void printMainReport() {
         System.out.println("=====================================================");
         System.out.println("            DISK SIMULATION CONFIGURATION");
@@ -609,6 +647,9 @@ public class Main {
         System.out.println("=====================================================\n");
     }
 
+    /**
+     * <p>Prints summary of single algorithm result.</p>
+     */
     private static void printAlgorithmReport(String algorithmName, int simulationTime, int totalMoves) {
         long totalTimeWaiting = 0;
         int minTimeWaiting = Integer.MAX_VALUE;
@@ -664,6 +705,9 @@ public class Main {
         System.out.println("\n");
     }
 
+    /**
+     * <p>Prints distribution of requests times in algorithm compared to average for this algorithm.</p>
+     */
     private static void printTimeDistribution(double averageWaitingTime) {
         int[] count = new int[5];//amount of requests per ratio
 
