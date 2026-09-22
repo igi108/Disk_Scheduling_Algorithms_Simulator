@@ -51,6 +51,8 @@ public class Main {
             minDeadline = 50;
             maxDeadline = 300;
             testAllAlgorithms();
+            System.out.println("\nPress ENTER to continue...");
+            scanner.nextLine();
         }
 
     }
