@@ -1,6 +1,5 @@
 public class Request {
 
-    public int id;
     /**
      * <p>Id of place where request sits.</p>
      */

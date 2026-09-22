@@ -124,7 +124,6 @@ public class Main {
         for (int i = 0; i < notClutteredRequests; i++){
             Request request= new Request();
             request.arrivalTime = randomInt(0, totalArrivalTime, random);
-            request.id = requestsGenerated;
             request.position = randomInt(0, diskSize, random);
 
             array[requestsGenerated] = request;
