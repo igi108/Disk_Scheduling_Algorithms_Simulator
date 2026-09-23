@@ -48,4 +48,6 @@ You can easily adjust simulation parameters to test different workloads:
 
 ## License
 
-This project is licensed under the MIT License - feel free to use and adapt it for learning purposes.
+This project is licensed under the **Creative Commons Attribution-NonCommercial 4.0 International (CC BY-NC 4.0)**.
+
+Copyright (c) 2026 Igor Filipowski
