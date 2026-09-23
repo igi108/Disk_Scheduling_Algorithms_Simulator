@@ -19,20 +19,21 @@ Algorithms simulated in this project:
 ![Simulation Preview](output_example.png)
 
 ## How to Run
-1. Open cmd or terminal and navigate to the project directory:
+1. Download `.zip` file and extract all files
+2. Open terminal and navigate to `src` directory in project:
    ```cmd
-   cd path/to/project
+   cd path/.../src
    ```
-   or open terminal in project directory.
+   or open cmd or terminal in project's `src` directory.
 
-2. Compile all Java files from `main` and `tools` packages:
+3. Compile all Java files from packages to `bin` directory:
    ```cmd
-   javac main/*.java tools/*.java
+   javac -d bin main/*.java tools/*.java
    ```
 
-3. Run the application:
+4. Run the application:
    ```cmd
-   java main.Main
+   java -cp bin main.Main
    ```
 
 *(Alternatively, you can open the project in any Java IDE like IntelliJ IDEA and run `Main.java` directly.)*
